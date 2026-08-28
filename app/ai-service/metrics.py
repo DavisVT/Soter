@@ -126,6 +126,24 @@ def check_system_resources(memory_threshold_percent: float = 90.0) -> bool:
     return True
 
 
+def record_rate_limit_exceeded(endpoint: str, method: str) -> None:
+    """Record a rejected rate limit request."""
+    RATE_LIMIT_EXCEEDED_TOTAL.labels(endpoint=endpoint, method=method).inc()
+    REQUEST_COUNT.labels(method=method, endpoint=endpoint, http_status=429).inc()
+
+
+# Evidence upload/artifact retention purge metrics
+UPLOAD_PURGE_ITEMS_TOTAL = Counter(
+    "upload_purge_items_total",
+    "Items removed by the evidence upload/artifact purge job",
+    ["kind"],
+)
+UPLOAD_PURGE_BYTES_RECLAIMED_TOTAL = Counter(
+    "upload_purge_bytes_reclaimed_total",
+    "Bytes reclaimed by the evidence upload/artifact purge job",
+    ["kind"],
+)
+
 # Cache stampede prevention metrics
 SINGLE_FLIGHT_SUPPRESSED = Counter(
     "cache_single_flight_suppressed_total",
